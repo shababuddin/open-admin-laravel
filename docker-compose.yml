@@ -1,0 +1,70 @@
+version: '3.3'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: NGINX-PROJECT
+    ports:
+      - 8081:80
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - network-project
+
+  api:
+    container_name: API_PROJECT
+    build:
+      context: ./
+      dockerfile: docker/php/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - network-project
+
+  db:
+    image: mysql
+    container_name: DB_PROJECT
+    restart: unless-stopped
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: 'laravel'
+    networks:
+      - network-project
+    volumes:
+      - dbdata:/var/lib/mysql/
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: MYADMIN_PROJECT
+    environment:
+      PMA_HOST: db
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8082:80
+    networks:
+      - network-project
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: MAILHOG_PROJECT
+    restart: unless-stopped
+    ports:
+      - 1025:1025
+      - 8083:8025
+    networks:
+      - network-project
+
+networks:
+  network-project:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

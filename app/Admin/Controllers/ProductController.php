@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Category;
 use OpenAdmin\Admin\Controllers\AdminController;
 use OpenAdmin\Admin\Form;
 use OpenAdmin\Admin\Grid;
@@ -73,7 +74,7 @@ class ProductController extends AdminController
     {
         $form = new Form(new Prodcut());
 
-        $form->number('category_id', __('Category id'));
+        $form->select('category_id', __('Category'))->options(Category::all()->pluck('name', 'id'));
         $form->text('name', __('Name'));
         $form->textarea('description', __('Description'));
         $form->number('qty', __('Qty'));
